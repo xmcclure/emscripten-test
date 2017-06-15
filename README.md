@@ -138,26 +138,19 @@ My repro steps are ad hoc and are mostly shaped by a desire to not ever have to 
 
 Install emscripten and node.js (I suggest doing this via Homebrew). Check out this repository and cd to it. In a terminal run the following steps:
 
-    # Check out my emscripten prototype branch; we'll build the aot compiler in this directory.
-    git clone --single-branch -b ems_test git@github.com:xmcclure/mono.git mono_compile
-    (cd mono_compile && git reset --hard c8b6aa0503a57ce01c750695728b28b6a6f3d4df)
+    # Check out llvm and mono prototype branch
+    git init submodule && git update submodule
 
-    # Check out a second copy to build the runtime in.
-    git clone --single-branch -b ems_test git@github.com:xmcclure/mono.git mono_runtime
-    (cd mono_runtime && git reset --hard c8b6aa0503a57ce01c750695728b28b6a6f3d4df)
-
-    # Check out mono's llvm fork. We'll need this to do anything.
-    git clone --single-branch -b mono-2016-02-13-2acdc6d60c5199a3b8957d851b62691d71756d08 https://github.com/mono/llvm mono_llvm_src
-
-    # Build llvm and install it into a "mono_llvm" dir
-    cd mono_llvm_src
-    (cd cmake && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=`pwd`/../../mono_llvm ..)
+    # Build llvm and install it into a "install/mono-llvm" dir
+    mkdir -p install/llvm
+    cd external/llvm
+    (cd cmake && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=`pwd`/../../../install/llvm ..)
     (cd cmake && make install)
     cd ..
 
     # Build compiler. Also build a mobile_static corlib and disable ALWAYS_AOT.
     cd mono_compile
-    ./autogen.sh --enable-nls=no "CFLAGS=-O0" CC="ccache clang" --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../mono_compile_install --enable-maintainer-mode --enable-llvm --enable-llvm-runtime --with-llvm=`pwd`/../mono_llvm
+    ./autogen.sh --enable-nls=no "CFLAGS=-O0" CC="ccache clang" --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-compile --enable-maintainer-mode --enable-llvm --enable-llvm-runtime --with-llvm=`pwd`/../../install/llvm
     make -j8
     (cd mcs/class/corlib && make PROFILE=mobile_static ALWAYS_AOT=)
     cd ..
@@ -166,7 +159,7 @@ Install emscripten and node.js (I suggest doing this via Homebrew). Check out th
     # Running "make" will get only as far as starting to build the standard library, then fail
     # with an error about mcs or jay/jay. That's fine, keep going, we only need the static libs.
     cd mono_runtime
-    emconfigure ./autogen.sh --enable-nls=no --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../mono_runtime_install --enable-maintainer-mode --with-cooperative-gc=yes --enable-division-check --with-sgen-default-concurrent=no --host=asmjs-local-emscripten --enable-minimal=jit
+    emconfigure ./autogen.sh --enable-nls=no --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-runtime --enable-maintainer-mode --with-cooperative-gc=yes --enable-division-check --with-sgen-default-concurrent=no --host=asmjs-local-emscripten --enable-minimal=jit
     emmake make
     cd ..
 
@@ -176,7 +169,7 @@ Install emscripten and node.js (I suggest doing this via Homebrew). Check out th
     # And set some environment variables.
     # This is mostly to set us up to use the AOT compiler without actually installing it.
     export TESTS=`pwd`;
-    export COMPILER=$TESTS/mono_compile RUNTIME=$TESTS/mono_runtime;
+    export COMPILER=$TESTS/install/mono-compile RUNTIME=$TESTS/install/mono-runtime;
     export COMPILER_BIN=$COMPILER/runtime/_tmpinst/bin;
     export MONO_CFG_DIR=$COMPILER/runtime/etc MONO_PATH=$COMPILER/mcs/class/lib/net_4_x;
     export PATH=$PATH:"$TESTS/mono_llvm/bin";

@@ -122,7 +122,7 @@ I also think it is worth sometime soon approaching WebAssembly to ask about, at 
 
     Note that, somewhat terrifyingly, link errors in emscripten are *warnings*; you get a warning at link time, and then an exception thrown at runtime if you try to call a nonexistent function.
 
-- In my test steps (see below) I don't use `--with-runtime_preset=mobile_static`. I probably should.
+- In my test steps (see below) I don't use `--with-runtime_preset=testing_aot_full`. I probably should.
 
 ### Entirely abstract issues
 
@@ -144,21 +144,21 @@ Install emscripten and node.js (I suggest doing this via Homebrew). Check out th
     # Build llvm and install it into a "install/mono-llvm" dir
     mkdir -p install/llvm
     cd external/llvm
-    (cd cmake && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=`pwd`/../../../install/llvm ..)
+    (cd cmake && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=`pwd`/../../install/llvm ..)
     (cd cmake && make install)
     cd ..
 
     # Build compiler. Also build a mobile_static corlib and disable ALWAYS_AOT.
-    cd mono_compile
-    ./autogen.sh --enable-nls=no "CFLAGS=-O0" CC="ccache clang" --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-compile --enable-maintainer-mode --enable-llvm --enable-llvm-runtime --with-llvm=`pwd`/../../install/llvm
+    cd external/mono-compile
+    ./autogen.sh --enable-nls=no "CFLAGS=-O0" CC="ccache clang" --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-compile --enable-maintainer-mode --enable-llvm --enable-llvm-runtime --with-llvm=`pwd`/../../../install/llvm --disable-mcs-build
     make -j8
-    (cd mcs/class/corlib && make PROFILE=mobile_static ALWAYS_AOT=)
+    (cd mcs/class/corlib && make PROFILE=testing_aot_full ALWAYS_AOT=)
     cd ..
 
     # Build runtime. You're going to be doing this with emscripten, so it looks a little funny.
     # Running "make" will get only as far as starting to build the standard library, then fail
     # with an error about mcs or jay/jay. That's fine, keep going, we only need the static libs.
-    cd mono_runtime
+    cd external/mono-runtime
     emconfigure ./autogen.sh --enable-nls=no --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-runtime --enable-maintainer-mode --with-cooperative-gc=yes --enable-division-check --with-sgen-default-concurrent=no --host=asmjs-local-emscripten --enable-minimal=jit
     emmake make
     cd ..
@@ -169,11 +169,11 @@ Install emscripten and node.js (I suggest doing this via Homebrew). Check out th
     # And set some environment variables.
     # This is mostly to set us up to use the AOT compiler without actually installing it.
     export TESTS=`pwd`;
-    export COMPILER=$TESTS/install/mono-compile RUNTIME=$TESTS/install/mono-runtime;
+    export COMPILER=$TESTS/external/mono-compile RUNTIME=$TESTS/external/mono-runtime;
     export COMPILER_BIN=$COMPILER/runtime/_tmpinst/bin;
     export MONO_CFG_DIR=$COMPILER/runtime/etc MONO_PATH=$COMPILER/mcs/class/lib/net_4_x;
-    export PATH=$PATH:"$TESTS/mono_llvm/bin";
-    export MSCORLIB_PATH=$COMPILER/mcs/class/lib/mobile_static;
+    export PATH=$PATH:"$TESTS/install/llvm/bin";
+    export MSCORLIB_PATH=$COMPILER/mcs/class/lib/testing_aot_full;
     export MSCORLIB=$MSCORLIB_PATH/mscorlib.dll
 
     # This will become the virtual filesystem of the emscripten program

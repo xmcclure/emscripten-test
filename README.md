@@ -159,7 +159,7 @@ Install emscripten and node.js (I suggest doing this via Homebrew). Check out th
     # Running "make" will get only as far as starting to build the standard library, then fail
     # with an error about mcs or jay/jay. That's fine, keep going, we only need the static libs.
     cd external/mono-runtime
-    emconfigure ./autogen.sh --enable-nls=no --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-runtime --enable-maintainer-mode --with-cooperative-gc=yes --enable-division-check --with-sgen-default-concurrent=no --host=asmjs-local-emscripten --enable-minimal=jit
+    emconfigure ./autogen.sh --enable-nls=no --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-runtime --enable-maintainer-mode --with-cooperative-gc=yes --enable-division-check --with-sgen-default-concurrent=no --host=asmjs-local-emscripten --enable-minimal=jit --disable-mcs-build
     emmake make
     cd ..
 

@@ -139,29 +139,29 @@ My repro steps are ad hoc and are mostly shaped by a desire to not ever have to 
 Install emscripten and node.js (I suggest doing this via Homebrew). Check out this repository and cd to it. In a terminal run the following steps:
 
     # Check out llvm and mono prototype branch
-    git init submodule && git update submodule
+    git submodule init && git submodule update --recursive
 
     # Build llvm and install it into a "install/mono-llvm" dir
     mkdir -p install/llvm
     cd external/llvm
-    (cd cmake && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=`pwd`/../../install/llvm ..)
+    (cd cmake && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=`pwd`/../../../install/llvm ..)
     (cd cmake && make install)
-    cd ..
+    cd ../..
 
     # Build compiler. Also build a mobile_static corlib and disable ALWAYS_AOT.
     cd external/mono-compile
-    ./autogen.sh --enable-nls=no "CFLAGS=-O0" CC="ccache clang" --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-compile --enable-maintainer-mode --enable-llvm --enable-llvm-runtime --with-llvm=`pwd`/../../../install/llvm --disable-mcs-build
+	git submodule update --init --recursive
+    ./autogen.sh --enable-nls=no CC="ccache clang" --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-compile --enable-maintainer-mode --enable-llvm --enable-llvm-runtime --with-llvm=`pwd`/../../install/llvm --with-runtime_preset=testing_aot_full --disable-btls
     make -j8
-    (cd mcs/class/corlib && make PROFILE=testing_aot_full ALWAYS_AOT=)
-    cd ..
+    cd ../..
 
     # Build runtime. You're going to be doing this with emscripten, so it looks a little funny.
     # Running "make" will get only as far as starting to build the standard library, then fail
     # with an error about mcs or jay/jay. That's fine, keep going, we only need the static libs.
     cd external/mono-runtime
-    emconfigure ./autogen.sh --enable-nls=no --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-runtime --enable-maintainer-mode --with-cooperative-gc=yes --enable-division-check --with-sgen-default-concurrent=no --host=asmjs-local-emscripten --enable-minimal=jit --disable-mcs-build
-    emmake make
-    cd ..
+    emconfigure ./autogen.sh --enable-nls=no --disable-boehm --with-sigaltstack=no --prefix=`pwd`/../../install/mono-runtime --enable-maintainer-mode --with-cooperative-gc=yes --enable-division-check --with-sgen-default-concurrent=no --host=asmjs-local-emscripten --enable-minimal=jit --disable-mcs-build --disable-btls
+    emmake make -j
+    cd ../..
 
     # Now we're going to actually build the emscripten example. First let's open a new bash session:
     bash

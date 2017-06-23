@@ -58,7 +58,8 @@ int main (int argc, char *argv[])
 
 	setenv ("MONO_PATH", assembly_path, 1); /*FIXME this doesn't affect the location in main_assembly_name */
 	setenv ("MONO_GC_PARAMS", "nursery-size=512k", 1);
-	//g_setenv ("MONO_LOG_LEVEL", "debug", 1);
+	setenv ("MONO_LOG_LEVEL", "debug", 1);
+	setenv ("MONO_LOG_MASK", "aot,asm");
 	//g_setenv ("MONO_GC_DEBUG", "2", 1);
 	//loadLib ();
 

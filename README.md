@@ -132,6 +132,13 @@ These do not actually need to be solved, but are sort of general Mono design iss
 - There's some kind of weird thing where you can't aot-compile one mscorlib if the aot compiler has loaded a different mscorlib. There's workarounds for this but they're awkward.
 - It would be neat, when compiling with `--aot=static`, if we could embed some assemblies directly into the executable. The UWP team was also asking about this.
 
+## Late June TODOs
+
+- Build LLVM with target i386-apple-darwin11.2.0
+- Build compiler with --build=i386-apple-darwin11.2.0 --target=asmjs-local-emscripten
+- Check [this](https://kripken.github.io/emscripten-site/docs/porting/guidelines/portability_guidelines.html) and [this](https://github.com/kripken/emscripten/blob/1.29.12/src/settings.js#L298) and consider turning on alignment error checking.
+- Switch asmjs to webasm?
+
 ## How to run this
 
 My repro steps are ad hoc and are mostly shaped by a desire to not ever have to run `make install`. But:

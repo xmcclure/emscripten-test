@@ -204,7 +204,7 @@ Install emscripten and node.js (I suggest doing this via Homebrew). Check out th
     # since they have recursive dependencies; the emscripten linker takes extra arguments
     # via -s, which we use to set the heap, set the virutal file system, and make sure
     # void main() is visible to node.
-    emcc -L$RUNTIME/mono/sgen/.libs -L$RUNTIME/mono/mini/.libs -L$RUNTIME/eglib/src/.libs -L$RUNTIME/mono/metadata/.libs -L$RUNTIME/mono/io-layer/.libs program.bc -L$RUNTIME/mono/utils/.libs mscorlib.bc driver.o -Wl,--start-group -lmonoutils -lmini-static -lmonoruntimesgen-static -lmonosgen-static -lwapi -Wl,--end-group -leglib -o csharp.js -s EXPORTED_FUNCTIONS='["_main"]' --embed-file assembly\@/ -s TOTAL_MEMORY=134217728
+    emcc -L$RUNTIME/mono/sgen/.libs -L$RUNTIME/mono/mini/.libs -L$RUNTIME/eglib/src/.libs -L$RUNTIME/mono/metadata/.libs program.bc -L$RUNTIME/mono/utils/.libs mscorlib.bc driver.o -Wl,--start-group -lmonoutils -lmini-static -lmonoruntimesgen-static -lmonosgen-static -Wl,--end-group -leglib -o csharp.js -s EXPORTED_FUNCTIONS='["_main"]' --embed-file assembly\@/ -s TOTAL_MEMORY=134217728
 
     # Run a small node program that loads the emscripten output and executes it.
     # If this worked, it would print "120".

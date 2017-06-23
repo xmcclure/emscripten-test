@@ -1,0 +1,9 @@
+[submodule "external/mono-compile"]
+	path = external/mono-compile
+	url = git@github.com:xmcclure/mono.git
+[submodule "external/mono-runtime"]
+	path = external/mono-runtime
+	url = git@github.com:xmcclure/mono.git
+[submodule "external/llvm"]
+	path = external/llvm
+	url = git@github.com:mono/llvm.git
